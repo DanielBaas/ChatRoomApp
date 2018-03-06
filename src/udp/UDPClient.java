@@ -4,9 +4,11 @@ import java.net.*;
 import java.io.*;
 
 public class UDPClient{
+
+    //args = mensaje y nombre del servidor
     public static void main(String args[]){
-// args = mensaje y nombre del servidor
         DatagramSocket aSocket = null;
+
         try {
             aSocket = new DatagramSocket();
             byte [] m = args[0].getBytes();
@@ -18,7 +20,10 @@ public class UDPClient{
             DatagramPacket reply = new DatagramPacket(buffer, buffer.length);
             aSocket.receive(reply);
             System.out.println("Reply: " + new String(reply.getData()));
-        }catch (SocketException e){System.out.println("Socket: " + e.getMessage());
-        }catch (IOException e){System.out.println("IO: " + e.getMessage());}
+        } catch (SocketException e){
+            System.out.println("Socket: " + e.getMessage());
+        } catch (IOException e){
+            System.out.println("IO: " + e.getMessage());
+        }
     }
 }
