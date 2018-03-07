@@ -74,12 +74,17 @@ public class ChatClient extends Frame implements Runnable {
     }
 
     public static void main(String args[]) {
-        if (args.length != 2)
-            throw new RuntimeException ("Sintaxis: ChatClient <host> <puerto>");
+        //if (args.length != 2)
+        //    throw new RuntimeException ("Sintaxis: ChatClient <host> <puerto>");
 
         try {
-            Socket s = new Socket (args[0],Integer.parseInt(args[1]));
-            new ChatClient("Chat "+ args[0]+":"+args[1], s.getInputStream(),s.getOutputStream());
+            //String serverHost = args[0];
+            //int serverPort = Integer.parseInt(args[1]);
+            String serverHost = "localhost";
+            int serverPort = 4444;
+
+            Socket s = new Socket (serverHost, serverPort);
+            new ChatClient("Chat "+ serverHost + ":" + serverPort, s.getInputStream(),s.getOutputStream());
         }//end try
         catch(IOException io){
             io.printStackTrace();

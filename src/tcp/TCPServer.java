@@ -1,4 +1,4 @@
-package tcp;
+//package tcp;
 
 import java.net.*;
 import java.io.*;
@@ -36,11 +36,13 @@ class Connection extends Thread {
     }
 
     public void run(){
-        try { String data = in.readUTF();
+        try {
+            String data = in.readUTF();
             out.writeUTF(data);
         } catch(EOFException e) {
             System.out.println("EOF:"+e.getMessage());
-        } catch(IOException e) {System.out.println("IO:"+e.getMessage());
+        } catch(IOException e) {
+            System.out.println("IO:"+e.getMessage());
         }
     }
 }
