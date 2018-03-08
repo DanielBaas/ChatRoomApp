@@ -23,8 +23,8 @@ public class ChatRoomController implements ActionListener {
         this.chatRoomView = chatRoomView;
     }
 
-    public void startView() {
-        chatRoomView.setTitle(room.getRoomName());
+    public void startView(String roomName) {
+        chatRoomView.setTitle(roomName);
         chatRoomView.pack();
         chatRoomView.setLocationRelativeTo(null);
         chatRoomView.setVisible(true);
@@ -42,6 +42,11 @@ public class ChatRoomController implements ActionListener {
 
             chatRoomView.getTextOuputArea().append(inputMessage + "\n");
         }
+    }
+
+    public void showMessage(String message) {
+        chatRoomView.getTextInputArea().setText("");
+        chatRoomView.getTextOuputArea().append(message + "\n");
     }
 
     @Override

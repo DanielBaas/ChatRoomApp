@@ -13,68 +13,30 @@ import java.net.UnknownHostException;
 
 public class Client implements Runnable {
 
-    private static Socket clientSocket;
-    private static PrintStream outputStream;
-    private static DataInputStream inputStream;
+    private static Socket clientSocket = null;
+    private static PrintStream outputStream = null;
+    private static DataInputStream inputStream = null;
     private static BufferedReader inputLine = null;
-    private static boolean closed;
+    private static boolean closed = false;
 
-    private static String host;
-    private static int portNumber;
-    private String userName;
-    private String roomName;
+    private static String host = "localhost";
+    private static int portNumber = 5555;
+    private static String userName = "anonimo";
+    private static String roomName = "Sala sin nombre";
 
-    private static ChatRoomView view;
-    private static ChatRoomController controller;
-
-    public Client() {
-        clientSocket = null;
-        outputStream = null;
-        inputStream = null;
-        closed = false;
-
-        host = "localhost";
-        portNumber = 5000;
-        userName = "Anonimo";
-        roomName = "Sala sin nombre";
-
-        view = new ChatRoomView();
-        controller = new ChatRoomController(view);
-    }
-
-    public static String getHost() {
-        return host;
-    }
-
-    public static void setHost(String host) {
-        Client.host = host;
-    }
-
-    public static int getPortNumber() {
-        return portNumber;
-    }
-
-    public static void setPortNumber(int portNumber) {
-        Client.portNumber = portNumber;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getRoomName() {
-        return roomName;
-    }
+    private static ChatRoomView view = new ChatRoomView();
+    private static ChatRoomController controller = new ChatRoomController(view);
 
     public void setRoomName(String roomName) {
         this.roomName = userName + "@" + roomName;
     }
 
     public static void main(String[] args) {
+        // The default port.
+        int portNumber = 5000;
+        // The default host.
+        String host = "localhost";
+
         /*
          * Open a socket on a given host and port. Open input and output streams.
          */
@@ -84,10 +46,9 @@ public class Client implements Runnable {
             outputStream = new PrintStream(clientSocket.getOutputStream());
             inputStream = new DataInputStream(clientSocket.getInputStream());
         } catch (UnknownHostException e) {
-            System.err.println("Don't know about host " + host);
+            System.err.println("No se encontro el host " + host);
         } catch (IOException e) {
-            System.err.println("Couldn't get I/O for the connection to the host "
-                    + host);
+            System.err.println("No se pudo obtener I/O del host " + host);
         }
 
         /*
