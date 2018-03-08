@@ -1,5 +1,6 @@
 package com.controller;
 
+import com.client.Client;
 import com.google.gson.Gson;
 import com.model.ChatRoomModel;
 import com.view.ChatRoomView;
@@ -10,14 +11,6 @@ import java.awt.event.ActionListener;
 public class ChatRoomController implements ActionListener {
 
     private ChatRoomView chatRoomView;
-    private ChatRoomModel room;
-
-    public ChatRoomController(ChatRoomView chatRoomView, ChatRoomModel room) {
-        this.chatRoomView = chatRoomView;
-        this.room = room;
-
-        this.chatRoomView.getButtonSend().addActionListener(this);
-    }
 
     public ChatRoomController(ChatRoomView chatRoomView) {
         this.chatRoomView = chatRoomView;
@@ -31,16 +24,10 @@ public class ChatRoomController implements ActionListener {
     }
 
     private void sendMessage() {
-        Gson messageToSend = new Gson();
         String inputMessage = chatRoomView.getTextInputArea().getText();
 
         if ( (!inputMessage.equals("")) && inputMessage != null ) {
-            room.setMessage(inputMessage);
-
-            messageToSend.toJson(room);
             chatRoomView.getTextInputArea().setText("");
-
-            chatRoomView.getTextOuputArea().append(inputMessage + "\n");
         }
     }
 

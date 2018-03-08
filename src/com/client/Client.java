@@ -10,6 +10,7 @@ import java.io.InputStreamReader;
 import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
+import java.util.Scanner;
 
 public class Client implements Runnable {
 
@@ -33,9 +34,12 @@ public class Client implements Runnable {
 
     public static void main(String[] args) {
         // The default port.
-        int portNumber = 5000;
+        portNumber = 5000;
         // The default host.
-        String host = "localhost";
+        host = "localhost";
+        System.out.println("user?");
+        userName = new Scanner(System.in).nextLine();
+        roomName = "sala de prueba 1";
 
         /*
          * Open a socket on a given host and port. Open input and output streams.
@@ -45,12 +49,17 @@ public class Client implements Runnable {
             inputLine = new BufferedReader(new InputStreamReader(System.in));
             outputStream = new PrintStream(clientSocket.getOutputStream());
             inputStream = new DataInputStream(clientSocket.getInputStream());
+            controller.startView(userName + "@" + roomName);
         } catch (UnknownHostException e) {
             System.err.println("No se encontro el host " + host);
         } catch (IOException e) {
             System.err.println("No se pudo obtener I/O del host " + host);
         }
 
+        writeMessage();
+    }
+
+    public static void writeMessage() {
         /*
          * If everything has been initialized then we want to write some data to the
          * socket we have opened a connection to on the port portNumber.
@@ -61,7 +70,8 @@ public class Client implements Runnable {
                 /* Create a thread to read from the server. */
                 new Thread(new Client()).start();
                 while (!closed) {
-                    outputStream.println(inputLine.readLine().trim());
+                    String messsage = inputLine.readLine().trim();
+                    outputStream.println(messsage);
                 }
                 /*
                  * Close the output stream, close the input stream, close the socket.
@@ -89,8 +99,7 @@ public class Client implements Runnable {
         try {
             while ((responseLine = inputStream.readLine()) != null) {
                 System.out.println(responseLine);
-                if (responseLine.indexOf("*** Bye") != -1)
-                    break;
+                controller.showMessage(responseLine);
             }
             closed = true;
         } catch (IOException e) {
