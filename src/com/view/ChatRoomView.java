@@ -106,6 +106,7 @@ public class ChatRoomView extends javax.swing.JFrame {
 
         getRootPane().setDefaultButton(buttonSend);
         textOuputArea.setEditable(false);
+        textInputArea.requestFocus();
 
         pack();
     }
