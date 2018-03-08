@@ -2,6 +2,8 @@ package multicast;
 
 import java.net.*;
 import java.io.*;
+import java.util.Scanner;
+
 public class MulticastPeer{
     public static void main(String args[]){   // args give message contents
         String grp = "228.5.6.7";
@@ -10,7 +12,8 @@ public class MulticastPeer{
             InetAddress group = InetAddress.getByName(grp);
             s = new MulticastSocket(6789);
             s.joinGroup(group);
-            byte [] m = args[0].getBytes();
+            String mensaje = new Scanner(System.in).nextLine();
+            byte [] m = mensaje.getBytes();
             DatagramPacket messageOut = new DatagramPacket(m, m.length, group, 6789);
             s.send(messageOut);
             // get messages from others in group
