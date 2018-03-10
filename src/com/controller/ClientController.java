@@ -1,5 +1,7 @@
 package com.controller;
 
+import com.google.gson.Gson;
+import com.model.Message;
 import com.view.ChatRoomView;
 
 import java.awt.event.ActionEvent;
@@ -14,13 +16,15 @@ public class ClientController implements Runnable {
     private static PrintStream outputStream = null;
     private static DataInputStream inputStream = null;
     private static BufferedReader inputLine = null;
-    private static boolean closed = false;
 
     private static String host = "localhost";
     private static int portNumber = 5000;
+
+    private static boolean closed = false;
     private static String userName = "anonimo";
     private static String roomName = "Sala sin nombre";
 
+    private static Message packageToSend = null;
     private static ChatRoomView view = new ChatRoomView();
 
     public ClientController() {
@@ -37,9 +41,14 @@ public class ClientController implements Runnable {
          */
         try {
             clientSocket = new Socket(host, portNumber);
+
             inputLine = new BufferedReader(new InputStreamReader(System.in));
             outputStream = new PrintStream(clientSocket.getOutputStream());
             inputStream = new DataInputStream(clientSocket.getInputStream());
+
+            packageToSend = new Message();
+            packageToSend.setRoomName(roomName);
+
             startView(userName + "@" + roomName);
         } catch (UnknownHostException e) {
             System.err.println("No se encontro el host " + host);
@@ -56,15 +65,7 @@ public class ClientController implements Runnable {
 
                 /* Create a thread to read from the server. */
                 new Thread(new ClientController()).start();
-                while (!closed) {
-                    String message = inputLine.readLine().trim();
-
-                    if (userName.equals("anonimo")){
-                        userName = message;
-                    }
-
-                    outputStream.println(userName);
-                }
+                while (!closed) {}
                 /*
                  * Close the output stream, close the input stream, close the socket.
                  */
@@ -78,7 +79,17 @@ public class ClientController implements Runnable {
     }//Fin main
 
     public static void writeMessage(String message) {
-        outputStream.println(message);
+        Gson gsonMessage = new Gson();
+
+        packageToSend.setMessage(message);
+
+        if (userName.equals("anonimo")) {
+            userName = message;
+            outputStream.println(userName);
+            packageToSend.setUserName(userName);
+        } else {
+            outputStream.println(gsonMessage.toJson(packageToSend));
+        }
     }
 
     /**

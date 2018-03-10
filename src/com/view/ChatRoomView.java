@@ -4,6 +4,7 @@ import javax.swing.JButton;
 import javax.swing.JList;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.text.DefaultCaret;
 
 public class ChatRoomView extends javax.swing.JFrame {
 
@@ -107,6 +108,8 @@ public class ChatRoomView extends javax.swing.JFrame {
         getRootPane().setDefaultButton(buttonSend);
         textOuputArea.setEditable(false);
         textInputArea.requestFocus();
+        DefaultCaret caret = (DefaultCaret) textOuputArea.getCaret();
+        caret.setUpdatePolicy(DefaultCaret.ALWAYS_UPDATE);
 
         pack();
     }
