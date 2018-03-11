@@ -4,8 +4,8 @@ Client Protocol
 
 i <uname>				Login as a user
 o <uname>				Logout
-m <roomid> <msg>			New message for a room from this client
-v <roomname> <host> <usr1> <usr2> ...	Invite usr1, usr2... to a new chat room
+m <roomid> <msg>			New message for a chatRoom from this client
+v <roomname> <host> <usr1> <usr2> ...	Invite usr1, usr2... to a new chat chatRoom
 d					dummy (will not be sent)
 
 -----------------
@@ -14,9 +14,9 @@ Server Protocol
 
 i <uname>			User logged in
 o <uname>			User logged out
-m <roomid> <msg>		New message for a room to this client
+m <roomid> <msg>		New message for a chatRoom to this client
 v <host> <roomid> <roomname>	Inform a client that a user invited him to 
-				a new room
+				a new chatRoom
 d				dummy (will not be sent)
 u <usr1> <usr2> <usr3> ...	Inform client the online users
 

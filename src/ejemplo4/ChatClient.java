@@ -53,7 +53,7 @@ public class ChatClient extends JFrame implements Runnable
 		}
 
 		System.out.println("Connected....starting GUI...");
-		JLabel lbl1 = new JLabel("Room Messages");
+		JLabel lbl1 = new JLabel("ChatRoom Messages");
 		JLabel lbl2 = new JLabel("Your Rooms");
 		JLabel lbl3 = new JLabel("Online Users");
 
@@ -77,7 +77,7 @@ public class ChatClient extends JFrame implements Runnable
 
 		txtSend = new JTextField(20);
 		JButton btnSend = new JButton("Send");
-		JButton btnCreate = new JButton("Invite users to a new Room");
+		JButton btnCreate = new JButton("Invite users to a new ChatRoom");
 		btnSend.setActionCommand("Send");
 		btnCreate.setActionCommand("Create");
 		MyActionListener listener=new MyActionListener();

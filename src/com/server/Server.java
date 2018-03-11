@@ -27,12 +27,10 @@ public class Server {
 
                 System.out.println("Nuevo cliente " + clientSocket.getInetAddress());
 
-                clients.add(new ClientHandler(clientSocket, clients));
-                int totalClients = clients.size();
+                ClientHandler newClientHandler = new ClientHandler(clientSocket, clients);
 
-                if (totalClients != 0) {
-                    clients.get(totalClients-1).start();
-                }
+                clients.add(newClientHandler);
+                newClientHandler.start();
             }
         } catch (IOException e) {
             System.out.println(e);
@@ -42,15 +40,6 @@ public class Server {
 
 }
 
-/*
- * The chat client thread. This client thread opens the input and the output
- * streams for a particular client, ask the client's name, informs all the
- * clients connected to the server about the fact that a new client has joined
- * the chat room, and as long as it receive data, echos that data back to all
- * other clients. The thread broadcast the incoming messages to all clients and
- * routes the private message to the particular client. When a client leaves the
- * chat room this thread informs also all the clients about that and terminates.
- */
 class ClientHandler extends Thread {
 
     private String clientName = null;
