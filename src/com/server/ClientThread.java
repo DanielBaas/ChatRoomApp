@@ -1,6 +1,7 @@
 package com.server;
 
 import com.google.gson.Gson;
+import com.model.GsonPackage;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -17,13 +18,6 @@ public class ClientThread extends Thread {
     public ClientThread (Socket clientSocket, ArrayList<ChatRoom> chatRooms) {
         this.clientSocket = clientSocket;
         this.chatRooms = chatRooms;
-
-        try {
-            this.inputStream = new DataInputStream(clientSocket.getInputStream());
-            this.outputStream = new DataOutputStream(clientSocket.getOutputStream());
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
     }
 
     private ChatRoom findRoom(String roomName) {
@@ -41,6 +35,9 @@ public class ClientThread extends Thread {
     public void run () {
         while (true) {
             try {
+                inputStream = new DataInputStream(clientSocket.getInputStream());
+                outputStream = new DataOutputStream(clientSocket.getOutputStream());
+
                 Gson gson = new Gson();
 
                 //Recibimos el mensaje del usuario en formato gson
@@ -64,6 +61,9 @@ public class ClientThread extends Thread {
                         }
                         chatRoom.addClient(this);
                         break;
+                    case "EXIT":
+
+                        break;
                     default:
                         //Se recuperan los clientes de la habitación a la cuál se desea mandar el mensaje
                         ArrayList<ClientThread> roomClients = chatRoom.getClients();
@@ -82,36 +82,4 @@ public class ClientThread extends Thread {
         }
     }
 
-}
-
-class GsonPackage {
-    private String userName;
-    private String roomName;
-    private String message;
-
-    public GsonPackage(String userName, String roomName, String message) {
-        this.userName = userName;
-        this.roomName = roomName;
-        this.message = message;
-    }
-
-    public String getUserName() {
-        return userName;
-    }
-
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
-
-    public String getRoomName() {
-        return roomName;
-    }
-
-    public String getMessage() {
-        return message;
-    }
-
-    public void setMessage(String message) {
-        this.message = message;
-    }
 }
