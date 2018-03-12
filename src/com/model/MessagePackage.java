@@ -1,11 +1,11 @@
 package com.model;
 
-public class GsonPackage {
+public class MessagePackage {
     private String userName;
     private String roomName;
     private String message;
 
-    public GsonPackage(String userName, String roomName, String message) {
+    public MessagePackage(String userName, String roomName, String message) {
         this.userName = userName;
         this.roomName = roomName;
         this.message = message;

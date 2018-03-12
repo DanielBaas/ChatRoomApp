@@ -1,7 +1,7 @@
 package com.server;
 
 import com.google.gson.Gson;
-import com.model.GsonPackage;
+import com.model.MessagePackage;
 
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
@@ -40,8 +40,10 @@ public class ClientThread extends Thread {
     }
 
     public void run () {
-        while (true) {
-            try {
+        boolean userConnected = true;
+
+        try {
+            while (userConnected) {
                 inputStream = new DataInputStream(clientSocket.getInputStream());
                 outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
@@ -51,12 +53,15 @@ public class ClientThread extends Thread {
                 String messageIn = inputStream.readUTF();
 
                 //Convertimos el mensaje gson a un objeto de la clase MessagePackage para acceder a los elementos del mensaje
-                GsonPackage messagePackage = gson.fromJson(messageIn, GsonPackage.class);
+                MessagePackage messagePackage = gson.fromJson(messageIn, MessagePackage.class);
 
                 //Leemos el mensaje que escribió el usuario
                 String message = messagePackage.getMessage().trim();
                 String roomName = messagePackage.getRoomName().trim();
                 ChatRoom chatRoom = findRoom(roomName);
+                ArrayList<ClientThread> echoClients = null;
+
+                System.out.println(message);
 
                 synchronized (this) {
                     switch (message) {
@@ -75,11 +80,22 @@ public class ClientThread extends Thread {
                         case "ECHO_JOIN":
                             messagePackage.setMessage("Bienvenido " + messagePackage.getUserName());
                             messagePackage.setUserName("SERVIDOR");
-
-                            ArrayList<ClientThread> echoClients = chatRoom.getClients();
+                            echoClients = chatRoom.getClients();
                             for (ClientThread client : echoClients) {
                                 client.outputStream.writeUTF(gson.toJson(messagePackage));
                             }
+                            break;
+                        case "EXIT":
+                            chatRoom.getClients().remove(this);
+                            userConnected = false;
+
+                            messagePackage.setMessage(messagePackage.getUserName() + " ha salido se la sala");
+                            messagePackage.setUserName("SERVIDOR");
+                            echoClients = chatRoom.getClients();
+                            for (ClientThread client : echoClients) {
+                                client.outputStream.writeUTF(gson.toJson(messagePackage));
+                            }
+
                             break;
                         default:
                             //Se recuperan los clientes de la habitación a la cuál se desea mandar el mensaje
@@ -90,9 +106,13 @@ public class ClientThread extends Thread {
                             break;
                     }
                 }
-            } catch (IOException e) {
-                e.printStackTrace();
             }
+
+            inputStream.close();
+            outputStream.close();
+            clientSocket.close();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 

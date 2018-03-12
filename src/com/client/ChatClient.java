@@ -1,15 +1,16 @@
 package com.client;
 
 import com.google.gson.Gson;
-import com.model.GsonPackage;
+import com.model.MessagePackage;
 import com.view.ChatRoomView;
 
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 import java.io.*;
 import java.net.Socket;
 import java.net.UnknownHostException;
-import java.util.Scanner;
 
 public class ChatClient extends Thread {
 
@@ -22,6 +23,7 @@ public class ChatClient extends Thread {
 
     private String userName;
     private String roomName;
+    private boolean isConnected;
 
     private static ChatRoomView view = new ChatRoomView();
 
@@ -31,25 +33,28 @@ public class ChatClient extends Thread {
         outputStream = null;
         this.userName = userName;
         this.roomName = roomName;
+        isConnected = false;
+
         view.getButtonSend().addActionListener(new SendListener());
+        view.addWindowListener(new CloseListener());
 
         this.start();
     }
 
     public void run () {
         try {
-            GsonPackage messagePackage = null;
+            MessagePackage messagePackage = null;
             Gson gson = new Gson();
-            Scanner keyboard = new Scanner(System.in);
             clientSocket = new Socket(HOST, PORT);
             inputStream = new DataInputStream(clientSocket.getInputStream());
             outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
-            messagePackage = new GsonPackage(userName, roomName, "JOIN");
+            messagePackage = new MessagePackage(userName, roomName, "JOIN");
 
             outputStream.writeUTF(gson.toJson(messagePackage));
 
             startView(userName + "@" + roomName);
+            isConnected = true;
 
             messagePackage.setMessage("ECHO_JOIN");
             outputStream.writeUTF(gson.toJson(messagePackage));
@@ -74,13 +79,13 @@ public class ChatClient extends Thread {
     private void sendMessage() {
         try {
             //Leemos lo que el String que el usuario introdujo en su ventana
-            String messageOut = view.getTextInputArea().getText();
+            String messageOut = view.getTextInputArea().getText().trim();
 
-            if ( (!messageOut.equals("")) && messageOut == null) {
+            if (!messageOut.isEmpty()) {
                 Gson gson = new Gson();
 
                 //Empaquetamos el mensaje a enviar
-                GsonPackage messagePackage = new GsonPackage(userName, roomName, messageOut);
+                MessagePackage messagePackage = new MessagePackage(userName, roomName, messageOut);
 
                 //Limpiamos el area de texto del usuario después de que presiona enviar
                 view.getTextInputArea().setText("");
@@ -90,6 +95,29 @@ public class ChatClient extends Thread {
             }
         } catch (IOException e) {
             e.printStackTrace();
+        }
+    }
+
+    class CloseListener extends WindowAdapter {
+        @Override
+        public void windowClosing(WindowEvent closeEvent) {
+            try {
+                MessagePackage messagePackage = null;
+                Gson gson = new Gson();
+
+                messagePackage = new MessagePackage(userName, roomName, "EXIT");
+
+                outputStream.writeUTF(gson.toJson(messagePackage));
+                isConnected = false;
+
+                //inputStream.close();
+                //outputStream.close();
+                //clientSocket.close();
+            } catch (UnknownHostException e) {
+                e.printStackTrace();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
         }
     }
 
@@ -110,32 +138,26 @@ public class ChatClient extends Thread {
         }
 
         public void run() {
-            while (true) {
-                try {
+            try {
+                while (isConnected) {
                     Gson gson = new Gson();
+                    String messageIn = "";
 
                     //Leemos el String json que contiene la información del mensaje
-                    String messageIn = inputStream.readUTF();
+                    messageIn = inputStream.readUTF();
 
                     System.out.println(messageIn);
                     //Convertimos el json a un objeto MessagePackage para poder acceder a la información del mensaje
-                    GsonPackage messsagePackage = gson.fromJson(messageIn, GsonPackage.class);
+                    MessagePackage messsagePackage = gson.fromJson(messageIn, MessagePackage.class);
 
                     //Preparamos el mensaje que se mostrará en la ventana del usuario
                     String messageToShow = "<<" + messsagePackage.getUserName() + ">> " + messsagePackage.getMessage();
 
                     //Mostramos el mensaje en pantalla
                     view.getTextOuputArea().append(messageToShow + "\n");
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    try {
-                        inputStream.close();
-                        outputStream.close();
-                        clientSocket.close();
-                    } catch (IOException e1) {
-                        e1.printStackTrace();
-                    }
                 }
+            } catch (IOException e) {
+                e.printStackTrace();
             }
         }
     }

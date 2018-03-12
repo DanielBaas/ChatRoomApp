@@ -2,15 +2,22 @@ package com.test;
 
 import com.client.ChatClient;
 
+import java.util.Scanner;
+
 public class ChatTest {
 
     public static void main(String[] args) {
-        ChatClient client0 = new ChatClient("Rafael", "Blender");
-        //ChatClient client2 = new ChatClient("Daniel", "Blender");
+        Scanner keyboard = new Scanner(System.in);
 
-        //ChatClient client3 = new ChatClient("Luis", "Washing machine");
-        //ChatClient client4 = new ChatClient("Jose", "Washing machine");
-        //ChatClient client5 = new ChatClient("Pedro", "Washing machine");
+        System.out.println("Nombre de usuario?");
+        String userName = keyboard.nextLine().trim();
+
+        System.out.println("Sala?");
+        String roomName = keyboard.nextLine().trim();
+
+        ChatClient client0 = new ChatClient(userName, roomName);
+
+        //Desde la clase controlador de la vista de salas, yo debo crear un nuevo objeto vista y pasárselo a mi ChatClient
     }
 
 }
