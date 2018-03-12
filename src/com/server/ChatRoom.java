@@ -12,7 +12,9 @@ public class ChatRoom {
     }
 
     public void addClient (ClientThread client) {
-        clients.add(client);
+        synchronized (this) {
+            clients.add(client);
+        }
     }
 
     public String getRoomName () {
