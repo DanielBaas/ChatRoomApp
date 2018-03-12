@@ -1,7 +1,6 @@
-package com.controller;
+/**package com.controller;
 
 import com.google.gson.Gson;
-import com.model.Message;
 import com.view.ChatRoomView;
 
 import java.awt.event.ActionEvent;
@@ -24,7 +23,7 @@ public class ClientController implements Runnable {
     private static String userName = "anonimo";
     private static String roomName = "Sala sin nombre";
 
-    private static Message packageToSend = null;
+    private static ClientListRequestPackage packageToSend = null;
     private static ChatRoomView view = new ChatRoomView();
 
     public ClientController() {
@@ -36,9 +35,6 @@ public class ClientController implements Runnable {
         host = "localhost";
         roomName = "sala de prueba 1";
 
-        /*
-         * Open a socket on a given host and port. Open input and output streams.
-         */
         try {
             clientSocket = new Socket(host, portNumber);
 
@@ -46,7 +42,7 @@ public class ClientController implements Runnable {
             outputStream = new PrintStream(clientSocket.getOutputStream());
             inputStream = new DataInputStream(clientSocket.getInputStream());
 
-            packageToSend = new Message();
+            packageToSend = new ClientListRequestPackage();
             packageToSend.setRoomName(roomName);
 
             startView(userName + "@" + roomName);
@@ -56,19 +52,12 @@ public class ClientController implements Runnable {
             System.err.println("No se pudo obtener I/O del host " + host);
         }
 
-        /*
-         * If everything has been initialized then we want to write some data to the
-         * socket we have opened a connection to on the port portNumber.
-         */
         if (clientSocket != null && outputStream != null && inputStream != null) {
             try {
 
-                /* Create a thread to read from the server. */
                 new Thread(new ClientController()).start();
                 while (!closed) {}
-                /*
-                 * Close the output stream, close the input stream, close the socket.
-                 */
+
                 outputStream.close();
                 inputStream.close();
                 clientSocket.close();
@@ -92,9 +81,6 @@ public class ClientController implements Runnable {
         }
     }
 
-    /**
-     * Función que queda a la espera de mensajes del servidor
-     */
     public void run() {
         String responseLine;
 
@@ -109,10 +95,6 @@ public class ClientController implements Runnable {
         }
     }
 
-    /**
-     * Inicia la GUI
-     * @param roomName Nombre que tendrá la ventana. Corresponde al nombre de la sala del foro.
-     */
     public static void startView(String roomName) {
         view.setTitle(roomName);
         view.pack();
@@ -120,9 +102,6 @@ public class ClientController implements Runnable {
         view.setVisible(true);
     }
 
-    /**
-     * Recibe el texto introducido por el usuario en la ventana de chat.
-     */
     private void sendMessage() {
         String inputMessage = view.getTextInputArea().getText();
 
@@ -132,17 +111,10 @@ public class ClientController implements Runnable {
         }
     }
 
-    /**
-     * Agrega los nuevos mensajes a la ventana del chat.
-     * @param message Mensaje a mostrar en el chat.
-     */
     public void showMessage(String message) {
         view.getTextOuputArea().append(message + "\n");
     }
 
-    /**
-     * Espera del evento correspondiente a presionar el botón "Enviar" dentro de la ventana del chat.
-     */
     class SendListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -152,4 +124,4 @@ public class ClientController implements Runnable {
         }
     }
 
-}
+}**/

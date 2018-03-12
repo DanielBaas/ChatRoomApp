@@ -6,7 +6,7 @@ public class ChatRoom {
     private String roomName;
     private ArrayList<ClientThread> clients;
 
-    public ChatRoom(String roomName) {
+    public ChatRoom (String roomName) {
         this.roomName = roomName;
         clients = new ArrayList<>();
     }
@@ -23,6 +23,18 @@ public class ChatRoom {
 
     public ArrayList<ClientThread> getClients () {
         return clients;
+    }
+
+    public String[] clientsInRoom () {
+        String[] clientsInRoom = new String[clients.size()];
+        int i = 0;
+
+        for (ClientThread currentClient : clients) {
+            clientsInRoom[i] = currentClient.getUserName();
+            i++;
+        }
+
+        return clientsInRoom;
     }
 
 }

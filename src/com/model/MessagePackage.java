@@ -30,4 +30,5 @@ public class MessagePackage {
     public void setMessage(String message) {
         this.message = message;
     }
+
 }

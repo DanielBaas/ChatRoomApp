@@ -1,7 +1,6 @@
-package com.server;
+/**package com.server;
 
 import com.google.gson.Gson;
-import com.model.Message;
 
 import java.io.DataInputStream;
 import java.io.PrintStream;
@@ -56,7 +55,7 @@ class ClientHandler extends Thread {
     public void run() {
         ArrayList<ClientHandler> clients = this.clients;
         String line = "";
-        Message data = new Message();
+        ClientListRequestPackage data = new ClientListRequestPackage();
 
         try {
             inputStream = new DataInputStream(clientSocket.getInputStream());
@@ -73,7 +72,7 @@ class ClientHandler extends Thread {
                 }
             }
 
-            /* Welcome the new the client. */
+            //Welcome the new the client
             outputStream.println("Welcome " + name + " to our chat room.\nTo leave enter /quit in a new line.");
 
             System.out.println("client size:"+clients.size()  );
@@ -92,17 +91,17 @@ class ClientHandler extends Thread {
                 }
             }
 
-            /* Start the conversation. */
+            //Star the conversation
             while (true) {
                 Gson gsonMessage = new Gson();
                 line = inputStream.readLine();
-                data = gsonMessage.fromJson(line, Message.class);
+                data = gsonMessage.fromJson(line, ClientListRequestPackage.class);
 
                 if (line.startsWith("/quit")) {
                     break;
                 }
 
-                /* The message inputStream public, broadcast it to all other clients. */
+                //Broadcast
                 synchronized (this) {
                     for (ClientHandler client : clients) {
                         if (client != null && client.clientName != null) {
@@ -125,10 +124,7 @@ class ClientHandler extends Thread {
 
             outputStream.println("***" + data.getUserName() + " se ha dejado la sala***");
 
-            /*
-             * Clean up. Set the current thread variable to null so that a new client
-             * could be accepted by the server.
-             */
+            //clean
             synchronized (this) {
                 for (int i = 0; i < clients.size(); i++) {
                     if (clients.get(i) == this) {
@@ -146,4 +142,4 @@ class ClientHandler extends Thread {
         }
     }
 
-}
+}**/
