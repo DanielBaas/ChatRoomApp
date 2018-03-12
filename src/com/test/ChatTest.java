@@ -15,7 +15,7 @@ public class ChatTest {
         System.out.println("Sala?");
         String roomName = keyboard.nextLine().trim();
 
-        ChatClient client0 = new ChatClient(userName, roomName);
+        ChatClient client = new ChatClient(userName, roomName);
 
         //Desde la clase controlador de la vista de salas, yo debo crear un nuevo objeto vista y pasárselo a mi ChatClient
     }

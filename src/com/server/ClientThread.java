@@ -14,6 +14,7 @@ public class ClientThread extends Thread {
     private static ArrayList<ChatRoom> chatRooms;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
+    private String userName;
 
     public ClientThread (Socket clientSocket, ArrayList<ChatRoom> chatRooms) {
         this.clientSocket = clientSocket;
