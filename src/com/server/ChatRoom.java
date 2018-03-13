@@ -25,7 +25,7 @@ public class ChatRoom {
         return clients;
     }
 
-    public String[] clientsInRoom () {
+    public String[] getClientsInRoom() {
         String[] clientsInRoom = new String[clients.size()];
         int i = 0;
 

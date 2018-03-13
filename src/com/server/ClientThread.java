@@ -57,6 +57,18 @@ public class ClientThread extends Thread {
         return false;
     }
 
+    private String[] getUserNameList () {
+        String[] listOfUserNames = new String[userNameList.size()];
+        int i = 0;
+
+        for (String currentUserName : userNameList) {
+            listOfUserNames[i] = currentUserName;
+            i++;
+        }
+
+        return listOfUserNames;
+    }
+
     public void run () {
         boolean userConnected = true;
 
@@ -83,26 +95,38 @@ public class ClientThread extends Thread {
 
                 synchronized (this) {
                     switch (message) {
-                        //El usuario desea unirse a una sala
-                        case "JOIN":
-                            //Si la sala no existe, se crea una nueva
+                        case "CREATE":
                             if (currentRoom == null) {
                                 currentRoom = new ChatRoom(roomName);
+                                chatRooms.add(currentRoom);
+                                messagePackage.setMessage("ROOM_AVAILABLE");
+                            } else {
+                                messagePackage.setMessage("ROOM_NOT_AVAILABLE");
                             }
 
-                            userName = messagePackage.getUserName().trim();
-                            currentRoom.addClient(this);
-                            chatRooms.add(currentRoom);
+                            messagePackage.setUserName("SERVIDOR");
+                            outputStream.writeUTF(gson.toJson(messagePackage));
+
+                            break;
+                        //El usuario desea unirse a una sala
+                        case "JOIN":
+                            if (currentRoom != null) {
+                                userName = messagePackage.getUserName().trim();
+                                currentRoom.addClient(this);
+                                messagePackage.setUserName("SERVIDOR");
+                                messagePackage.setMessage("ROOM_AVAILABLE");
+                                outputStream.writeUTF(gson.toJson(messagePackage));
+                            }
 
                             break;
                         case "ECHO_JOIN":
-                            messagePackage.setMessage("Bienvenido " + userName);
                             messagePackage.setUserName("SERVIDOR");
+                            messagePackage.setMessage("Bienvenido " + userName);
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {
                                 client.outputStream.writeUTF(gson.toJson(messagePackage));
-                                client.outputStream.writeUTF("CL=" + gson.toJson(currentRoom.clientsInRoom()));
+                                client.outputStream.writeUTF("CL=" + gson.toJson(currentRoom.getClientsInRoom()));
                             }
 
                             break;
@@ -114,18 +138,23 @@ public class ClientThread extends Thread {
                             if (findUserName(userNameToRegister) == false) {
                                 userNameList.add(userNameToRegister);
                                 messagePackage.setMessage("USER_AVAILABLE");
+                                userConnected = false;
                             } else {
                                 messagePackage.setMessage("USER_UNAVAILABLE");
                             }
 
                             outputStream.writeUTF(gson.toJson(messagePackage));
+                            break;
 
+                        case "LIST_ROOMS":
+                            messagePackage.setUserName("SERVIDOR");
+                            outputStream.writeUTF("UL=" + gson.toJson(getUserNameList()));
                             break;
                         case "EXIT":
                             currentRoom.getClients().remove(this);
                             userConnected = false;
-                            messagePackage.setMessage(messagePackage.getUserName() + " ha salido se la sala");
                             messagePackage.setUserName("SERVIDOR");
+                            messagePackage.setMessage(messagePackage.getUserName() + " ha salido se la sala");
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {

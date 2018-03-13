@@ -18,13 +18,14 @@ public class LoginController {
     private Socket socket;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
-    private static LoginView view = new LoginView();
+    private LoginView view;
 
     public LoginController(Socket socket, DataInputStream inputStream, DataOutputStream outputStream) {
         this.socket = socket;
         this.inputStream = inputStream;
         this.outputStream = outputStream;
 
+        view = new LoginView();
         view.getButtonLogin().addActionListener(new LoginListener());
         view.setLocationRelativeTo(null);
         view.setVisible(true);
@@ -38,18 +39,15 @@ public class LoginController {
             /*Enviamos una petición para validar el nombre de usuario*/
             outputStream.writeUTF(gson.toJson(messagePackage));
 
-            while (true) {
-                String response = inputStream.readUTF();
-                messagePackage = gson.fromJson(response, MessagePackage.class);
+            String response = inputStream.readUTF();
+            messagePackage = gson.fromJson(response, MessagePackage.class);
 
-                if (messagePackage.getMessage().equals("USER_UNAVAILABLE")) {
-                    JOptionPane.showMessageDialog(null, "Nombre de usuario no disponible!");
-                    break;
-                } else if (messagePackage.getMessage().equals("USER_AVAILABLE")) {
-                    JOptionPane.showMessageDialog(null, "Nombre de usuario disponible!");
-                    //Se crea una nueva instancia de la ventana que lista las salas de chat disponibles
-                    break;
-                }
+            if (messagePackage.getMessage().equals("USER_UNAVAILABLE")) {
+                JOptionPane.showMessageDialog(null, "Nombre de usuario no disponible!");
+            } else if (messagePackage.getMessage().equals("USER_AVAILABLE")) {
+                //Se crea una nueva instancia de la ventana que lista las salas de chat disponibles
+                new RoomListController(socket, inputStream, outputStream, userName);
+                view.dispose();
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();

@@ -57,6 +57,9 @@ public class LoginView extends javax.swing.JFrame {
                                 .addGap(53, 53, 53))
         );
 
+        getRootPane().setDefaultButton(buttonLogin);
+        textUserName.requestFocus();
+
         pack();
     }// </editor-fold>
 
