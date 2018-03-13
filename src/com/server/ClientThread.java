@@ -11,14 +11,16 @@ import java.util.ArrayList;
 
 public class ClientThread extends Thread {
     private Socket clientSocket;
-    private static ArrayList<ChatRoom> chatRooms;
     private DataInputStream inputStream;
     private DataOutputStream outputStream;
     private String userName;
+    private ArrayList<ChatRoom> chatRooms;
+    private ArrayList<String> userNameList;
 
-    public ClientThread (Socket clientSocket, ArrayList<ChatRoom> chatRooms) {
+    public ClientThread (Socket clientSocket, ArrayList<ChatRoom> chatRooms, ArrayList<String> userNameList) {
         this.clientSocket = clientSocket;
         this.chatRooms = chatRooms;
+        this.userNameList = userNameList;
     }
 
     public String getUserName () {
@@ -39,6 +41,20 @@ public class ClientThread extends Thread {
 
             return null;
         }
+    }
+
+    private boolean findUserName (String userNameToFind) {
+        if (userNameList.size() == 0) {
+            return false;
+        }
+
+        for (String currentUserName : userNameList) {
+            if (currentUserName.equals(userNameToFind)) {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     public void run () {
@@ -88,6 +104,21 @@ public class ClientThread extends Thread {
                                 client.outputStream.writeUTF(gson.toJson(messagePackage));
                                 client.outputStream.writeUTF("CL=" + gson.toJson(currentRoom.clientsInRoom()));
                             }
+
+                            break;
+                        case "REGISTER_USERNAME":
+                            String userNameToRegister = messagePackage.getUserName();
+
+                            messagePackage.setUserName("SERVIDOR");
+
+                            if (findUserName(userNameToRegister) == false) {
+                                userNameList.add(userNameToRegister);
+                                messagePackage.setMessage("USER_AVAILABLE");
+                            } else {
+                                messagePackage.setMessage("USER_UNAVAILABLE");
+                            }
+
+                            outputStream.writeUTF(gson.toJson(messagePackage));
 
                             break;
                         case "EXIT":
