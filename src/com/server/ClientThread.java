@@ -69,6 +69,18 @@ public class ClientThread extends Thread {
         return listOfUserNames;
     }
 
+    public String[] getRoomNamesList () {
+        String[] roomNamesList = new String[chatRooms.size()];
+        int i = 0;
+
+        for (ChatRoom currentRoom : chatRooms) {
+            roomNamesList[i] = currentRoom.getRoomName();
+            i++;
+        }
+
+        return roomNamesList;
+    }
+
     public void run () {
         boolean userConnected = true;
 
@@ -91,7 +103,7 @@ public class ClientThread extends Thread {
                 ChatRoom currentRoom = findRoom(roomName);
                 ArrayList<ClientThread> echoClients = null;
 
-                System.out.println(message);
+                System.out.println(messageIn);
 
                 synchronized (this) {
                     switch (message) {
@@ -108,14 +120,10 @@ public class ClientThread extends Thread {
                             outputStream.writeUTF(gson.toJson(messagePackage));
 
                             break;
-                        //El usuario desea unirse a una sala
                         case "JOIN":
                             if (currentRoom != null) {
                                 userName = messagePackage.getUserName().trim();
                                 currentRoom.addClient(this);
-                                messagePackage.setUserName("SERVIDOR");
-                                messagePackage.setMessage("ROOM_AVAILABLE");
-                                outputStream.writeUTF(gson.toJson(messagePackage));
                             }
 
                             break;
@@ -138,19 +146,16 @@ public class ClientThread extends Thread {
                             if (findUserName(userNameToRegister) == false) {
                                 userNameList.add(userNameToRegister);
                                 messagePackage.setMessage("USER_AVAILABLE");
-                                userConnected = false;
                             } else {
                                 messagePackage.setMessage("USER_UNAVAILABLE");
                             }
 
                             outputStream.writeUTF(gson.toJson(messagePackage));
                             break;
-
                         case "LIST_ROOMS":
-                            messagePackage.setUserName("SERVIDOR");
-                            outputStream.writeUTF("UL=" + gson.toJson(getUserNameList()));
+                            outputStream.writeUTF("RL=" + gson.toJson(getRoomNamesList()));
                             break;
-                        case "EXIT":
+                        case "EXIT_ROOM":
                             currentRoom.getClients().remove(this);
                             userConnected = false;
                             messagePackage.setUserName("SERVIDOR");
@@ -159,7 +164,13 @@ public class ClientThread extends Thread {
 
                             for (ClientThread client : echoClients) {
                                 client.outputStream.writeUTF(gson.toJson(messagePackage));
+                                client.outputStream.writeUTF("CL=" + gson.toJson(currentRoom.getClientsInRoom()));
                             }
+
+                            break;
+                        case "EXIT_APP":
+                            userNameList.remove(messagePackage.getUserName());
+                            userConnected = false;
 
                             break;
                         default:

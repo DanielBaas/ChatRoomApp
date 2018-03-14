@@ -1,9 +1,6 @@
 package com.view;
 
-import javax.swing.JButton;
-import javax.swing.JList;
-import javax.swing.JTextArea;
-import javax.swing.JTextField;
+import javax.swing.*;
 import javax.swing.text.DefaultCaret;
 
 public class ChatRoomView extends javax.swing.JFrame {
@@ -33,7 +30,7 @@ public class ChatRoomView extends javax.swing.JFrame {
         jScrollPane2 = new javax.swing.JScrollPane();
         listUsers = new javax.swing.JList<>();
 
-        setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
+        setDefaultCloseOperation(WindowConstants.DISPOSE_ON_CLOSE);
         setResizable(false);
 
         jPanel1.setBorder(javax.swing.BorderFactory.createTitledBorder(null, "Chat ChatRoom", javax.swing.border.TitledBorder.DEFAULT_JUSTIFICATION, javax.swing.border.TitledBorder.DEFAULT_POSITION, new java.awt.Font("Arial", 1, 14)));

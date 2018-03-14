@@ -27,9 +27,9 @@ public class ChatClient extends Thread {
     private String roomName;
     private boolean isConnected;
 
-    private static ChatRoomView view = new ChatRoomView();
+    private ChatRoomView view;
 
-    public ChatClient(String userName, String roomName) {
+    public ChatClient(String userName, String roomName, ChatRoomView view) {
         clientSocket = null;
         inputStream = null;
         outputStream = null;
@@ -37,6 +37,7 @@ public class ChatClient extends Thread {
         this.roomName = roomName;
         isConnected = false;
 
+        this.view = view;
         view.getButtonSend().addActionListener(new SendListener());
         view.addWindowListener(new CloseListener());
 
@@ -72,7 +73,7 @@ public class ChatClient extends Thread {
     }
 
     //Inicializamos la ventana del usuario
-    public static void startView(String roomName) {
+    public void startView(String roomName) {
         view.setTitle(roomName);
         view.pack();
         view.setLocationRelativeTo(null);
@@ -84,7 +85,7 @@ public class ChatClient extends Thread {
             //Leemos lo que el String que el usuario introdujo en su ventana
             String messageOut = view.getTextInputArea().getText().trim();
 
-            if (!messageOut.isEmpty()) {
+            if (!messageOut.isEmpty() && messageOut != null) {
                 Gson gson = new Gson();
 
                 //Empaquetamos el mensaje a enviar
@@ -110,15 +111,11 @@ public class ChatClient extends Thread {
                 Gson gson = new Gson();
 
                 //Empaquetamos un mensaje para hacer petición de salir de la sala
-                messagePackage = new MessagePackage(userName, roomName, "EXIT");
+                messagePackage = new MessagePackage(userName, roomName, "EXIT_ROOM");
 
                 //Enviamos la petición
                 outputStream.writeUTF(gson.toJson(messagePackage));
                 isConnected = false;
-
-                inputStream.close();
-                outputStream.close();
-                clientSocket.close();
             } catch (UnknownHostException e) {
                 e.printStackTrace();
             } catch (IOException e) {
