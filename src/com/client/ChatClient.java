@@ -14,10 +14,14 @@ import java.io.IOException;
 import java.net.Socket;
 import java.net.UnknownHostException;
 
+/**
+ * Clase que maneja la ventana de envío y recibo de mensajes para una sala. Se crea una nueva conexión TCP con el servidor
+ * que estará activa mientras el usuario mantenga la ventana abierta.
+ */
 public class ChatClient extends Thread {
 
-    private static final int PORT = 5000;
-    private static final String HOST = "localhost";
+    private final int PORT = 5000;
+    private final String HOST = "localhost";
 
     private Socket clientSocket;
     private DataInputStream inputStream;
@@ -44,6 +48,10 @@ public class ChatClient extends Thread {
         this.start();
     }
 
+    /**
+     * Ejecución principal de la clase. Realiza una solicitud para unirse a la sala deseada, así como para informar
+     * a todos los usuarios que un nuevo cliente entró.
+     */
     public void run () {
         try {
             MessagePackage messagePackage = null;
@@ -72,7 +80,10 @@ public class ChatClient extends Thread {
         }
     }
 
-    //Inicializamos la ventana del usuario
+    /**
+     * Inicia la ventana del usuario.
+     * @param roomName Nombre de la sala a la cual se realizó la conexión.
+     */
     public void startView(String roomName) {
         view.setTitle(roomName);
         view.pack();
@@ -80,21 +91,24 @@ public class ChatClient extends Thread {
         view.setVisible(true);
     }
 
+    /**
+     * Procesa las entradas del usuario, las empaqueta y las envía al servidor.
+     */
     private void sendMessage() {
         try {
-            //Leemos lo que el String que el usuario introdujo en su ventana
+            /*Leemos lo que el String que el usuario introdujo en su ventana*/
             String messageOut = view.getTextInputArea().getText().trim();
 
             if (!messageOut.isEmpty() && messageOut != null) {
                 Gson gson = new Gson();
 
-                //Empaquetamos el mensaje a enviar
+                /*Empaquetamos el mensaje a enviar*/
                 MessagePackage messagePackage = new MessagePackage(userName, roomName, messageOut);
 
-                //Limpiamos el area de texto del usuario después de que presiona enviar
+                /*Limpiamos el area de texto del usuario después de que presiona enviar*/
                 view.getTextInputArea().setText("");
 
-                //Enviamos el mensaje al servidor
+                /*Enviamos el mensaje al servidor*/
                 outputStream.writeUTF(gson.toJson(messagePackage));
             }
         } catch (IOException e) {
@@ -102,7 +116,9 @@ public class ChatClient extends Thread {
         }
     }
 
-    /* Recibe los eventos de cierre de la ventana del usuario */
+    /**
+     * Recibe el evento de cierre de la ventana del usuario, y envía una petición al servidor para desconexión.
+     */
     class CloseListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent closeEvent) {
@@ -124,7 +140,9 @@ public class ChatClient extends Thread {
         }
     }
 
-    /* Recibe los eventos del botón enviar (presionar tecla intro) */
+    /**
+     * Recibe los evento de presionado del botón "Enviar" (o tecla intro)
+     */
     class SendListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent event) {
@@ -134,6 +152,9 @@ public class ChatClient extends Thread {
         }
     }
 
+    /**
+     * Thread que procesa los mensajes recibidos del servidor.
+     */
     class Receiver extends Thread {
         private DataInputStream inputStream;
 
@@ -147,25 +168,25 @@ public class ChatClient extends Thread {
                     Gson gson = new Gson();
                     String messageIn = "";
 
-                    //Leemos el String json que contiene la información del mensaje
+                    /*Leemos el String json que contiene la información del mensaje*/
                     messageIn = inputStream.readUTF();
 
-                    //Si el mensaje recibido es una Client List, se actualiza la ventan del usuario con los clientes en la sala
+                    /*Si el mensaje recibido es una Client List, se actualiza la ventan del usuario con los clientes en la sala*/
                     if (messageIn.contains("CL=")) {
-                        //Se extrae la lista de clientes del mensaje recibido
+                        /*Se extrae la lista de clientes del mensaje recibido*/
                         messageIn = messageIn.substring(3);
                         String[] clientsInRoom = gson.fromJson(messageIn, String[].class);
 
-                        //Se actualiza la ventana del usuario
+                        /*Se actualiza la ventana del usuario*/
                         view.getListUsers().setListData(clientsInRoom);
                     } else {
-                        //Convertimos el json a un objeto MessagePackage para poder acceder a la información del mensaje
+                        /*Convertimos el json a un objeto MessagePackage para poder acceder a la información del mensaje*/
                         MessagePackage messsagePackage = gson.fromJson(messageIn, MessagePackage.class);
 
-                        //Preparamos el mensaje que se mostrará en la ventana del usuario
+                        /*Preparamos el mensaje que se mostrará en la ventana del usuario*/
                         String messageToShow = "<<" + messsagePackage.getUserName() + ">> " + messsagePackage.getMessage();
 
-                        //Mostramos el mensaje en pantalla
+                        /*Mostramos el mensaje en pantalla*/
                         view.getTextOuputArea().append(messageToShow + "\n");
                     }
                 }

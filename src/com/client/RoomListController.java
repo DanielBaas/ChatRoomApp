@@ -41,6 +41,10 @@ public class RoomListController {
         fillAvailableRooms();
     }
 
+    /**
+     * Realiza una petición al servidor para obtener una lista de las salas disponibles, para luego msotrarlas en la venta
+     * del usuario.
+     */
     private void fillAvailableRooms () {
         try {
             Gson gson = new Gson();
@@ -60,6 +64,10 @@ public class RoomListController {
         }
     }
 
+    /**
+     * Recibe el evento del presionado del botón "Crear nueva sala". Envía petición al servidor para validar que dicha sala
+     * no existe y luego crea una nueva instancia del objeto ChatClient, la cual ya realiza el envío y recibo de mensajes
+     */
     class CreateListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -82,7 +90,11 @@ public class RoomListController {
                         String roomAvailable = messagePackage.getMessage();
 
                         if (roomAvailable.equals("ROOM_AVAILABLE")) {
+                            /*Nueva instancia de la ventana de chat*/
                             ChatRoomView gui = new ChatRoomView();
+
+                            /*Nueva instancia del controlador de la vista del usuario. Realiza todo el procesamiento de
+                            * envío y recibo de mensajes*/
                             ChatClient client = new ChatClient(userName, roomName, gui);
 
                             fillAvailableRooms();
@@ -97,6 +109,10 @@ public class RoomListController {
         }
     }
 
+    /**
+     * Recibe el evento del presionado del botón "Entrar a una sala". Envía una petición al servidor para realizar el
+     * registro del usuario a la sala selecionada.
+     */
     class JoinListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -110,7 +126,10 @@ public class RoomListController {
         }
     }
 
-    /* Recibe los eventos de cierre de la ventana del usuario */
+    /**
+     * Recibe el evento de cierre de la ventana del usuario y manda una petición al servidor para cerrar comunicación por
+     * cierre de la aplicación.
+     */
     class CloseListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent closeEvent) {
@@ -118,10 +137,8 @@ public class RoomListController {
                 MessagePackage messagePackage = null;
                 Gson gson = new Gson();
 
-                //Empaquetamos un mensaje para hacer petición de salir del servidor
                 messagePackage = new MessagePackage(userName, "LIST_ROOMS", "EXIT_APP");
 
-                //Enviamos la petición
                 outputStream.writeUTF(gson.toJson(messagePackage));
             } catch (UnknownHostException e) {
                 e.printStackTrace();

@@ -2,8 +2,16 @@ package com.server;
 
 import java.util.ArrayList;
 
+/**
+ * Objeto que representa las salas del chat. Sirve como contenedor para las instacias ClientThread, además de identificarse
+ * con un nombre de sala.
+ */
 public class ChatRoom {
+
+    /*Nombre de la sala*/
     private String roomName;
+
+    /*Conjunto de procesos que representan a los clientes conectados a la sala*/
     private ArrayList<ClientThread> clients;
 
     public ChatRoom (String roomName) {
