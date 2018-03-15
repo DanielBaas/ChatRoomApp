@@ -118,12 +118,11 @@ public class ClientThread extends Thread {
         boolean userConnected = true;
 
         try {
+            inputStream = new DataInputStream(clientSocket.getInputStream());
+            outputStream = new DataOutputStream(clientSocket.getOutputStream());
 
             /*Se usa un ciclo de duración indeterminada para recibir, procesar y enviar mensajes*/
             while (userConnected) {
-                inputStream = new DataInputStream(clientSocket.getInputStream());
-                outputStream = new DataOutputStream(clientSocket.getOutputStream());
-
                 Gson gson = new Gson();
 
                 /*Recibimos el mensaje del usuario en formato gson*/
@@ -157,9 +156,9 @@ public class ClientThread extends Thread {
                                 chatRooms.add(currentRoom);
                                 messagePackage.setMessage("ROOM_AVAILABLE");
 
-                                userName = messagePackage.getUserName();
+                                String user = messagePackage.getUserName();
 
-                                if (!userName.equals(supportClient.getUserName())) {
+                                if (!user.equals(supportClient.getUserName())) {
                                     currentRoom.addClient(supportClient);
                                     supportClient.outputStream.writeUTF("NR=" + gson.toJson(roomName));
                                     supportClient.outputStream.writeUTF("RL=" + gson.toJson(getRoomNamesList()));
@@ -185,9 +184,8 @@ public class ClientThread extends Thread {
                         /*Petición para enviar un mensaje a todos los usuarios de la sala indicando que un nuevo
                         * usuario se ha conectado a la sala en uso*/
                         case "ECHO_JOIN":
-                            userName = messagePackage.getUserName();
                             messagePackage.setUserName("SERVIDOR");
-                            messagePackage.setMessage("Bienvenido " + userName);
+                            messagePackage.setMessage("Bienvenido " + messagePackage.getUserName());
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {
@@ -233,10 +231,9 @@ public class ClientThread extends Thread {
 
                             /*Se actualiza la variable del while para romepr comunicación con el cliente*/
                             userConnected = false;
-                            userName = messagePackage.getUserName();
 
                             messagePackage.setUserName("SERVIDOR");
-                            messagePackage.setMessage(userName + " ha salido se la sala");
+                            messagePackage.setMessage(messagePackage.getUserName() + " ha salido se la sala");
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {
