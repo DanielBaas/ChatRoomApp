@@ -184,8 +184,9 @@ public class ClientThread extends Thread {
                         /*Petición para enviar un mensaje a todos los usuarios de la sala indicando que un nuevo
                         * usuario se ha conectado a la sala en uso*/
                         case "ECHO_JOIN":
-                            messagePackage.setUserName("SERVIDOR");
                             messagePackage.setMessage("Bienvenido " + messagePackage.getUserName());
+                            messagePackage.setUserName("SERVIDOR");
+
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {
@@ -232,8 +233,9 @@ public class ClientThread extends Thread {
                             /*Se actualiza la variable del while para romepr comunicación con el cliente*/
                             userConnected = false;
 
+                            String user = messagePackage.getUserName();
                             messagePackage.setUserName("SERVIDOR");
-                            messagePackage.setMessage(messagePackage.getUserName() + " ha salido se la sala");
+                            messagePackage.setMessage(user + " ha salido se la sala");
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {
