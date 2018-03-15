@@ -36,7 +36,7 @@ public class RoomListController {
         view.addWindowListener(new CloseListener());
         view.setLocationRelativeTo(null);
         view.setVisible(true);
-        view.setName("Bienvenido " + userName + "!!!");
+        view.setTitle("Bienvenido " + userName + "!!!");
 
         fillAvailableRooms();
     }
@@ -68,7 +68,7 @@ public class RoomListController {
      * Recibe el evento del presionado del botón "Crear nueva sala". Envía petición al servidor para validar que dicha sala
      * no existe y luego crea una nueva instancia del objeto ChatClient, la cual ya realiza el envío y recibo de mensajes
      */
-    class CreateListener implements ActionListener {
+    private class CreateListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Gson gson = new Gson ();
@@ -114,7 +114,7 @@ public class RoomListController {
      * Recibe el evento del presionado del botón "Entrar a una sala". Envía una petición al servidor para realizar el
      * registro del usuario a la sala selecionada.
      */
-    class JoinListener implements ActionListener {
+    private class JoinListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             Gson gson = new Gson ();
@@ -131,7 +131,7 @@ public class RoomListController {
      * Recibe el evento de cierre de la ventana del usuario y manda una petición al servidor para cerrar comunicación por
      * cierre de la aplicación.
      */
-    class CloseListener extends WindowAdapter {
+    private class CloseListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent closeEvent) {
             try {

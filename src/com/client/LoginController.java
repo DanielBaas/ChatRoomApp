@@ -37,8 +37,12 @@ public class LoginController {
      * lista de salas disponibles. En caso de que el nombre de usuario no esté disponible, muestra un mensaje de error.
      * @param userName Nombre de usario que se desea validar
      */
-    public void logIn(String userName) {
+    private void logIn(String userName) {
         try {
+            socket = new Socket(HOST, PORT);
+            inputStream = new DataInputStream(socket.getInputStream());
+            outputStream = new DataOutputStream(socket.getOutputStream());
+
             Gson gson = new Gson();
             MessagePackage messagePackage = new MessagePackage(userName, "LOGIN", "REGISTER_USERNAME");
 
@@ -72,29 +76,19 @@ public class LoginController {
     /**
      * Listener que espera el evento de presionado del botón Login
      */
-    class LoginListener implements ActionListener {
+    private class LoginListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            try {
-                socket = new Socket(HOST, PORT);
-                inputStream = new DataInputStream(socket.getInputStream());
-                outputStream = new DataOutputStream(socket.getOutputStream());
+            String userName = view.getTextUserName().getText();
 
-                String userName = view.getTextUserName().getText();
+            if (!userName.isEmpty()) {
+                userName = userName.toUpperCase().trim();
 
-                if (!userName.isEmpty()) {
-                    userName = userName.toUpperCase();
-
-                    if (userName.equals("SOPORTE")) {
-                        JOptionPane.showMessageDialog(null, "Nombre de usuario no válido");
-                    } else {
-                        logIn(userName.trim().toUpperCase());
-                    }
+                if (userName.equals("SOPORTE")) {
+                    JOptionPane.showMessageDialog(null, "Nombre de usuario no válido");
+                } else {
+                    logIn(userName);
                 }
-            } catch (UnknownHostException e1) {
-                e1.printStackTrace();
-            } catch (IOException e2) {
-                e2.printStackTrace();
             }
         }
     }

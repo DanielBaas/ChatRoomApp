@@ -206,11 +206,11 @@ public class ClientThread extends Thread {
                             break;
                         /*Petición para registrar un nombre de usuario al realizar el login*/
                         case "REGISTER_USERNAME":
-                            String userNameToRegister = messagePackage.getUserName();
+                            String userName = messagePackage.getUserName();
                             messagePackage.setUserName("SERVIDOR");
 
-                            if (findUserName(userNameToRegister) == false) {
-                                userNameList.add(userNameToRegister);
+                            if (findUserName(userName) == false) {
+                                userNameList.add(userName);
                                 messagePackage.setMessage("USER_AVAILABLE");
                             } else {
                                 messagePackage.setMessage("USER_UNAVAILABLE");
@@ -228,15 +228,15 @@ public class ClientThread extends Thread {
                         /*Petición para salir de una sala. Se informa al resto de los usuarios dentro de la sala que alguien
                         * ha salido y que actualicen su ventana*/
                         case "EXIT_ROOM":
-
                             /*Se remueve al cliente de la sala*/
                             currentRoom.getClients().remove(this);
 
                             /*Se actualiza la variable del while para romepr comunicación con el cliente*/
                             userConnected = false;
+                            userName = messagePackage.getUserName();
 
                             messagePackage.setUserName("SERVIDOR");
-                            messagePackage.setMessage(messagePackage.getUserName() + " ha salido se la sala");
+                            messagePackage.setMessage(userName + " ha salido se la sala");
                             echoClients = currentRoom.getClients();
 
                             for (ClientThread client : echoClients) {
@@ -255,7 +255,22 @@ public class ClientThread extends Thread {
                             userConnected = false;
 
                             break;
+                        /*El soporte ha terminado el servicio en línea*/
+                        case "SUPPORT_EXIT_APP":
+                            for (ChatRoom room : chatRooms) {
+                                for (ClientThread client : room.getClients()) {
+                                    if (!client.getUserName().equals(supportClient.getUserName())) {
+                                        client.outputStream.writeUTF("SUPPORT_OFFLINE");
+                                        client.inputStream.close();
+                                        client.outputStream.close();
+                                        client.clientSocket.close();
+                                    }
 
+                                    userConnected = false;
+                                }
+                            }
+
+                            break;
                         /*Petición para enviar mensajes de manera generala a todos los clientes de la sala*/
                         default:
 

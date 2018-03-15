@@ -128,6 +128,8 @@ public class SupportController extends Thread {
                     outputStream.writeUTF(gson.toJson(messagePackage));
 
                     currentRoom.addMessage("<<" + USERNAME + ">> " + messageOut);
+
+                    currentRoom.printMessages();
                 }
             }
         } catch (IOException e) {
@@ -225,14 +227,11 @@ public class SupportController extends Thread {
             try {
                 Gson gson = new Gson();
                 String roomName = view.getListRooms().getSelectedValue();
-                System.out.println("roomname " + roomName);
 
                 if (roomName != null) {
                     currentRoom = findRoom(roomName);
 
-                    if (currentRoom == null) {
-                        System.out.println("currentroom es null");
-                    } else {
+                    if (currentRoom != null) {
                         view.getTextOuputArea().setText("");
                         view.setTitle(USERNAME + "@" + currentRoom.getRoomName());
 

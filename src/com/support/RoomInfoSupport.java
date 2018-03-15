@@ -7,20 +7,26 @@ public class RoomInfoSupport {
     private String roomName;
     private ArrayList<String> messages;
 
-    public RoomInfoSupport (String roomName) {
+    public RoomInfoSupport(String roomName) {
         this.roomName = roomName;
         messages = new ArrayList<>();
     }
 
-    public void addMessage (String message) {
+    public void addMessage(String message) {
         messages.add(message);
     }
 
-    public String getRoomName () {
+    public String getRoomName() {
         return roomName;
     }
 
-    public ArrayList<String> getMessages () {
+    public ArrayList<String> getMessages() {
         return messages;
+    }
+
+    public void printMessages() {
+        for (String message : messages) {
+            System.out.println(message);
+        }
     }
 }

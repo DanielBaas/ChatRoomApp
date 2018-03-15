@@ -4,6 +4,7 @@ import com.google.gson.Gson;
 import com.model.MessagePackage;
 import com.view.ChatRoomView;
 
+import javax.swing.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.WindowAdapter;
@@ -119,7 +120,7 @@ public class ChatClient extends Thread {
     /**
      * Recibe el evento de cierre de la ventana del usuario, y envía una petición al servidor para desconexión.
      */
-    class CloseListener extends WindowAdapter {
+    private class CloseListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent closeEvent) {
             try {
@@ -143,7 +144,7 @@ public class ChatClient extends Thread {
     /**
      * Recibe los evento de presionado del botón "Enviar" (o tecla intro)
      */
-    class SendListener implements ActionListener{
+    private class SendListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent event) {
             if (event.getSource() == view.getButtonSend()) {
@@ -155,7 +156,7 @@ public class ChatClient extends Thread {
     /**
      * Thread que procesa los mensajes recibidos del servidor.
      */
-    class Receiver extends Thread {
+    private class Receiver extends Thread {
         private DataInputStream inputStream;
 
         public Receiver (DataInputStream inputStream) {
@@ -179,6 +180,9 @@ public class ChatClient extends Thread {
 
                         /*Se actualiza la ventana del usuario*/
                         view.getListUsers().setListData(clientsInRoom);
+                    } else if (messageIn.equals("SUPPORT_OFFLINE")) {
+                        JOptionPane.showMessageDialog(null, "El servicio de soporte en línea ha finalizado.\nGracias!");
+                        view.dispose();
                     } else {
                         /*Convertimos el json a un objeto MessagePackage para poder acceder a la información del mensaje*/
                         MessagePackage messsagePackage = gson.fromJson(messageIn, MessagePackage.class);
