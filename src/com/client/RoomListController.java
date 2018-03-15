@@ -79,6 +79,7 @@ public class RoomListController {
 
                 if (!roomName.isEmpty()) {
                     try {
+                        roomName = roomName.toUpperCase();
                         MessagePackage messagePackage = new MessagePackage(userName, roomName, "CREATE");
 
                         //Enviamos petición de creación de sala

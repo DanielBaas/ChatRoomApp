@@ -158,11 +158,11 @@ public class ClientThread extends Thread {
                                 messagePackage.setMessage("ROOM_AVAILABLE");
 
                                 userName = messagePackage.getUserName();
-                                System.out.println("suport " + supportClient.getUserName());
+
                                 if (!userName.equals(supportClient.getUserName())) {
-                                    System.out.println("username: " + userName);
-                                    System.out.println("soporte name: " + supportClient.getUserName());
                                     currentRoom.addClient(supportClient);
+                                    supportClient.outputStream.writeUTF("NR=" + gson.toJson(roomName));
+                                    supportClient.outputStream.writeUTF("RL=" + gson.toJson(getRoomNamesList()));
                                 }
                             } else {
                                 messagePackage.setMessage("ROOM_NOT_AVAILABLE");

@@ -145,7 +145,7 @@ public class SupportController extends Thread {
         return null;
     }
 
-    class SendListener implements ActionListener{
+    private class SendListener implements ActionListener{
         @Override
         public void actionPerformed(ActionEvent event) {
             if (event.getSource() == view.getButtonSend()) {
@@ -157,7 +157,7 @@ public class SupportController extends Thread {
     /**
      * Thread que procesa los mensajes recibidos del servidor.
      */
-    class Receiver extends Thread {
+    private class Receiver extends Thread {
         private DataInputStream inputStream;
 
         public Receiver (DataInputStream inputStream) {
@@ -173,6 +173,8 @@ public class SupportController extends Thread {
                     /*Leemos el String json que contiene la información del mensaje*/
                     messageIn = inputStream.readUTF();
 
+                    System.out.println(messageIn);
+
                     /*Si el mensaje recibido es una Client List, se actualiza la ventan del usuario con los clientes en la sala*/
                     if (messageIn.contains("CL=")) {
                         /*Se extrae la lista de clientes del mensaje recibido*/
@@ -183,8 +185,14 @@ public class SupportController extends Thread {
                         view.getListUsers().setListData(clientsInRoom);
                     } else if (messageIn.contains("RL=")) {
                         messageIn = messageIn.substring(3);
-                        String[] userList = gson.fromJson(messageIn, String[].class);
-                        view.getListRooms().setListData(userList);
+                        String[] roomList = gson.fromJson(messageIn, String[].class);
+
+                        view.getListRooms().setListData(roomList);
+                    } else if (messageIn.contains("NR=")) {
+                        messageIn = messageIn.substring(3);
+                        messageIn = messageIn.replace("\"", "");
+                        System.out.println("nr=" + messageIn);
+                        currentRooms.add(new RoomInfoSupport(messageIn));
                     } else {
                         /*Convertimos el json a un objeto MessagePackage para poder acceder a la información del mensaje*/
                         MessagePackage messsagePackage = gson.fromJson(messageIn, MessagePackage.class);
@@ -211,28 +219,33 @@ public class SupportController extends Thread {
         }
     }
 
-    class ChangeRoomListener implements ActionListener {
+    private class ChangeRoomListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
                 Gson gson = new Gson();
                 String roomName = view.getListRooms().getSelectedValue();
+                System.out.println("roomname " + roomName);
 
                 if (roomName != null) {
                     currentRoom = findRoom(roomName);
 
-                    view.getTextOuputArea().setText("");
-                    view.setName(USERNAME + "@" + currentRoom.getRoomName());
+                    if (currentRoom == null) {
+                        System.out.println("currentroom es null");
+                    } else {
+                        view.getTextOuputArea().setText("");
+                        view.setTitle(USERNAME + "@" + currentRoom.getRoomName());
 
-                    ArrayList<String> messages = currentRoom.getMessages();
+                        ArrayList<String> messages = currentRoom.getMessages();
 
-                    for (String message : messages) {
-                        view.getTextOuputArea().append(message + "\n");
+                        for (String message : messages) {
+                            view.getTextOuputArea().append(message + "\n");
+                        }
+
+                        MessagePackage messagePackage = new MessagePackage(USERNAME, currentRoom.getRoomName(), "LIST_ROOMS");
+
+                        outputStream.writeUTF(gson.toJson(messagePackage));
                     }
-
-                    MessagePackage messagePackage = new MessagePackage(USERNAME, currentRoom.getRoomName(), "LIST_ROOMS");
-
-                    outputStream.writeUTF(gson.toJson(messagePackage));
                 }
             } catch (IOException e1) {
                 e1.printStackTrace();
@@ -245,7 +258,7 @@ public class SupportController extends Thread {
      * Recibe el evento de cierre de la ventana del usuario y manda una petición al servidor para cerrar comunicación por
      * cierre de la aplicación.
      */
-    class CloseListener extends WindowAdapter {
+     private class CloseListener extends WindowAdapter {
         @Override
         public void windowClosing(WindowEvent closeEvent) {
             try {

@@ -83,7 +83,9 @@ public class LoginController {
                 String userName = view.getTextUserName().getText();
 
                 if (!userName.isEmpty()) {
-                    if (userName.toUpperCase().equals("SOPORTE")) {
+                    userName = userName.toUpperCase();
+
+                    if (userName.equals("SOPORTE")) {
                         JOptionPane.showMessageDialog(null, "Nombre de usuario no válido");
                     } else {
                         logIn(userName.trim().toUpperCase());
