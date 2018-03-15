@@ -21,11 +21,16 @@ public class ClientThread extends Thread {
     private String userName;
     private ArrayList<ChatRoom> chatRooms;
     private ArrayList<String> userNameList;
+    private ClientThread supportClient;
 
     public ClientThread (Socket clientSocket, ArrayList<ChatRoom> chatRooms, ArrayList<String> userNameList) {
         this.clientSocket = clientSocket;
         this.chatRooms = chatRooms;
         this.userNameList = userNameList;
+    }
+
+    public void setSupportClient (ClientThread supportClient) {
+        this.supportClient = supportClient;
     }
 
     /**
@@ -35,6 +40,10 @@ public class ClientThread extends Thread {
      */
     public String getUserName () {
         return userName;
+    }
+
+    public void setUserName (String userName) {
+        this.userName = userName;
     }
 
     /**
@@ -147,6 +156,14 @@ public class ClientThread extends Thread {
                                 currentRoom = new ChatRoom(roomName);
                                 chatRooms.add(currentRoom);
                                 messagePackage.setMessage("ROOM_AVAILABLE");
+
+                                String user = messagePackage.getUserName();
+
+                                if (!user.equals(supportClient.getUserName())) {
+                                    System.out.println("username: " + user);
+                                    System.out.println("soporte name: " + supportClient.getUserName());
+                                    currentRoom.addClient(supportClient);
+                                }
                             } else {
                                 messagePackage.setMessage("ROOM_NOT_AVAILABLE");
                             }
@@ -168,6 +185,7 @@ public class ClientThread extends Thread {
                         /*Petición para enviar un mensaje a todos los usuarios de la sala indicando que un nuevo
                         * usuario se ha conectado a la sala en uso*/
                         case "ECHO_JOIN":
+                            userName = messagePackage.getUserName();
                             messagePackage.setUserName("SERVIDOR");
                             messagePackage.setMessage("Bienvenido " + userName);
                             echoClients = currentRoom.getClients();
@@ -182,6 +200,10 @@ public class ClientThread extends Thread {
 
                             break;
 
+                        case "LIST_CLIENTS":
+                            outputStream.writeUTF("CL=" + gson.toJson(currentRoom.getClientsInRoom()));
+
+                            break;
                         /*Petición para registrar un nombre de usuario al realizar el login*/
                         case "REGISTER_USERNAME":
                             String userNameToRegister = messagePackage.getUserName();

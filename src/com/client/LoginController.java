@@ -3,6 +3,7 @@ package com.client;
 import com.google.gson.Gson;
 import com.model.MessagePackage;
 import com.view.LoginView;
+import sun.rmi.runtime.Log;
 
 import javax.swing.*;
 import java.awt.event.ActionEvent;
@@ -15,16 +16,15 @@ import java.net.UnknownHostException;
 
 public class LoginController {
 
-    private Socket socket;
-    private DataInputStream inputStream;
-    private DataOutputStream outputStream;
+    private final int PORT = 5000;
+    private final String HOST = "localhost";
+
+    private static Socket socket = null;
+    private static DataInputStream inputStream = null;
+    private static DataOutputStream outputStream = null;
     private LoginView view;
 
-    public LoginController(Socket socket, DataInputStream inputStream, DataOutputStream outputStream) {
-        this.socket = socket;
-        this.inputStream = inputStream;
-        this.outputStream = outputStream;
-
+    public LoginController() {
         view = new LoginView();
         view.getButtonLogin().addActionListener(new LoginListener());
         view.setLocationRelativeTo(null);
@@ -47,14 +47,20 @@ public class LoginController {
 
             String response = inputStream.readUTF();
             messagePackage = gson.fromJson(response, MessagePackage.class);
+            String messageIn = messagePackage.getMessage();
 
-            /*Si el nombre de usuario no está disponble, se muestra una ventana emergente con un mensaje de error*/
-            if (messagePackage.getMessage().equals("USER_UNAVAILABLE")) {
-                JOptionPane.showMessageDialog(null, "Nombre de usuario no disponible!");
-            } else if (messagePackage.getMessage().equals("USER_AVAILABLE")) {
-                /*Se crea una nueva instancia de la ventana que lista las salas de chat disponibles*/
-                new RoomListController(socket, inputStream, outputStream, userName);
-                view.dispose();
+            switch (messageIn) {
+                case "USER_UNAVAILABLE":
+                    JOptionPane.showMessageDialog(null, "Nombre de usuario no disponible!");
+                    break;
+                case "USER_AVAILABLE":
+                    /*Se crea una nueva instancia de la ventana que lista las salas de chat disponibles*/
+                    new RoomListController(socket, inputStream, outputStream, userName);
+                    view.dispose();
+                    break;
+                case "SUPPORT_NOT_ONLINE":
+                    JOptionPane.showMessageDialog(null, "El servicio de soporte no se encuentra en línea");
+                    break;
             }
         } catch (UnknownHostException e) {
             e.printStackTrace();
@@ -69,33 +75,30 @@ public class LoginController {
     class LoginListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String userName = view.getTextUserName().getText().trim();
+            try {
+                socket = new Socket(HOST, PORT);
+                inputStream = new DataInputStream(socket.getInputStream());
+                outputStream = new DataOutputStream(socket.getOutputStream());
 
-            if (!userName.isEmpty()) {
-                logIn(userName);
+                String userName = view.getTextUserName().getText();
+
+                if (!userName.isEmpty()) {
+                    if (userName.toUpperCase().equals("SOPORTE")) {
+                        JOptionPane.showMessageDialog(null, "Nombre de usuario no válido");
+                    } else {
+                        logIn(userName.trim().toUpperCase());
+                    }
+                }
+            } catch (UnknownHostException e1) {
+                e1.printStackTrace();
+            } catch (IOException e2) {
+                e2.printStackTrace();
             }
         }
     }
 
-    /**
-     * Inicia la aplicación para el cliente. Se conecta al servidor usando el host y puerto especificados usando el protocolo
-     * TCP.
-     * @param args
-     */
     public static void main(String[] args) {
-        try {
-            final int PORT = 5000;
-            final String HOST = "localhost";
-
-            Socket clientSocket = new Socket(HOST, PORT);
-            DataInputStream inputStream = new DataInputStream(clientSocket.getInputStream());
-            DataOutputStream outputStream = new DataOutputStream(clientSocket.getOutputStream());
-
-            new LoginController(clientSocket, inputStream, outputStream);
-        } catch (UnknownHostException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        new LoginController();
     }
+
 }
