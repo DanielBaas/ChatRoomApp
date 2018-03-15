@@ -157,10 +157,10 @@ public class ClientThread extends Thread {
                                 chatRooms.add(currentRoom);
                                 messagePackage.setMessage("ROOM_AVAILABLE");
 
-                                String user = messagePackage.getUserName();
-
-                                if (!user.equals(supportClient.getUserName())) {
-                                    System.out.println("username: " + user);
+                                userName = messagePackage.getUserName();
+                                System.out.println("suport " + supportClient.getUserName());
+                                if (!userName.equals(supportClient.getUserName())) {
+                                    System.out.println("username: " + userName);
                                     System.out.println("soporte name: " + supportClient.getUserName());
                                     currentRoom.addClient(supportClient);
                                 }

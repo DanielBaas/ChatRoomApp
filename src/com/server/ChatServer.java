@@ -27,6 +27,8 @@ public class ChatServer {
 
     private static boolean supportOnline = false;
 
+    private static ClientThread supportClient;
+
     public static void main(String[] args) {
         Socket clientSocket = null;
 
@@ -41,6 +43,7 @@ public class ChatServer {
 
                 if (supportOnline) {
                     ClientThread client = new ClientThread(clientSocket, chatRooms, userNameList);
+                    client.setSupportClient(supportClient);
                     client.start();
                 } else {
                     String messageIn = inputStream.readUTF();
@@ -51,10 +54,10 @@ public class ChatServer {
 
                     if (userName.equals("SOPORTE")) {
                         supportOnline = true;
-                        ClientThread client = new ClientThread(clientSocket, chatRooms, userNameList);
-                        client.setUserName(userName);
-                        client.setSupportClient(client);
-                        client.start();
+                        supportClient = new ClientThread(clientSocket, chatRooms, userNameList);
+                        supportClient.setUserName(userName);
+                        supportClient.setSupportClient(supportClient);
+                        supportClient.start();
                     } else {
                         messagePackage.setUserName("SERVIDOR");
                         messagePackage.setMessage("SUPPORT_NOT_ONLINE");
